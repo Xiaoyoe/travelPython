@@ -1,0 +1,117 @@
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS db_travel;
+USE db_travel;
+
+-- 1. 创建用户表
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nickname VARCHAR(255),
+    email VARCHAR(255),
+    frequentCity VARCHAR(255),
+    preferences TEXT
+);
+
+-- 2. 创建景点表
+CREATE TABLE IF NOT EXISTS attractions (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    description TEXT,
+    history TEXT,
+    features TEXT,
+    tips TEXT,
+    openTime VARCHAR(255),
+    price DECIMAL(10, 2),
+    discountPrice DECIMAL(10, 2),
+    suggestedDuration VARCHAR(255),
+    rating FLOAT,
+    reviewCount INT,
+    tags TEXT,
+    images TEXT,
+    phone VARCHAR(255),
+    website VARCHAR(255)
+);
+
+-- 3. 创建评论表
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    attractionId VARCHAR(255),
+    userId INT,
+    userName VARCHAR(255),
+    userAvatar VARCHAR(255),
+    rating INT,
+    content TEXT,
+    images TEXT,
+    date DATE,
+    FOREIGN KEY (attractionId) REFERENCES attractions(id),
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+-- 4. 创建收藏表
+CREATE TABLE IF NOT EXISTS favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT,
+    attractionId VARCHAR(255),
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (attractionId) REFERENCES attractions(id)
+);
+
+-- 5. 创建特色专题表
+CREATE TABLE IF NOT EXISTS topics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    description TEXT,
+    image VARCHAR(255)
+);
+
+-- 插入假数据到用户表
+INSERT INTO users (username, password, nickname, email, frequentCity, preferences) VALUES
+('traveler1', '$2a$10$xJwL5v5Jz5z5z5z5z5z5zO', '旅行者一号', 'traveler1@example.com', '北京', '["历史","文化","美食"]'),
+('adventure2', '$2a$10$xJwL5v5Jz5z5z5z5z5z5zO', '冒险家', 'adventure2@example.com', '上海', '["冒险","户外","自然"]'),
+('foodie3', '$2a$10$xJwL5v5Jz5z5z5z5z5z5zO', '美食家', 'foodie3@example.com', '广州', '["美食","购物","休闲"]'),
+('photog4', '$2a$10$xJwL5v5Jz5z5z5z5z5z5zO', '摄影师', 'photog4@example.com', '成都', '["摄影","自然","人文"]'),
+('family5', '$2a$10$xJwL5v5Jz5z5z5z5z5z5zO', '家庭旅行', 'family5@example.com', '杭州', '["家庭","休闲","公园"]');
+
+-- 插入假数据到景点表
+INSERT INTO attractions (id, name, location, description, history, features, tips, openTime, price, discountPrice, suggestedDuration, rating, reviewCount, tags, images, phone, website) VALUES
+('att001', '故宫博物院', '北京市东城区景山前街4号', '明清两代的皇家宫殿，世界上现存规模最大、保存最为完整的木质结构古建筑之一。', '建于1406年，已有600多年历史，曾居住过24位皇帝。', '["世界文化遗产","中国古代建筑精华","皇家文物珍藏"]', '["建议提前网上购票","避开节假日人流高峰","可租用电子讲解器"]', '08:30-17:00', 60.00, 40.00, '4-6小时', 4.8, 12500, '["历史","文化","建筑"]', '["img1.jpg","img2.jpg","img3.jpg"]', '010-85007421', 'http://www.dpm.org.cn'),
+('att002', '上海迪士尼乐园', '上海市浦东新区川沙新镇', '中国大陆首座迪士尼主题乐园，拥有六大主题园区。', '2016年6月16日正式开园。', '["奇幻童话城堡","创极速光轮","迪士尼角色互动"]', '["下载官方APP查看排队时间","可购买快速通行证","晚上烟花秀不容错过"]', '08:00-22:00', 399.00, 299.00, '1天', 4.7, 9800, '["主题乐园","家庭","娱乐"]', '["img4.jpg","img5.jpg","img6.jpg"]', '021-31589888', 'https://www.shanghaidisneyresort.com'),
+('att003', '广州塔', '广州市海珠区阅江西路222号', '昵称小蛮腰，中国第一高塔，世界第二高塔。', '2009年建成，2010年正式对外开放。', '["433米高空观景平台","488米极速云霄","旋转餐厅"]', '["天气晴朗时视野最佳","傍晚可同时欣赏日落和夜景","塔上风大注意保暖"]', '09:30-22:30', 150.00, 120.00, '2-3小时', 4.6, 7600, '["地标","现代建筑","夜景"]', '["img7.jpg","img8.jpg","img9.jpg"]', '020-89338222', 'http://www.cantontower.com'),
+('att004', '成都大熊猫繁育研究基地', '成都市成华区熊猫大道1375号', '世界著名的大熊猫迁地保护基地，科研繁育中心。', '1987年建立，最初从野外救助的6只大熊猫开始。', '["近距离观察大熊猫","熊猫产房","熊猫幼崽"]', '["早上9-11点是熊猫最活跃的时间","参观时保持安静","禁止使用闪光灯"]', '07:30-18:00', 58.00, 29.00, '3-4小时', 4.9, 11200, '["动物","自然","亲子"]', '["img10.jpg","img11.jpg","img12.jpg"]', '028-83510033', 'http://www.panda.org.cn'),
+('att005', '西湖', '杭州市西湖区', '中国十大风景名胜之一，2011年被列入世界文化遗产名录。', '有2000多年历史，历代文人墨客留下无数诗篇。', '["苏堤春晓","三潭印月","雷峰夕照"]', '["步行或骑行游览最佳","四季景色各有特色","可乘船游湖"]', '全天开放', 0.00, 0.00, '半天至1天', 4.8, 15800, '["湖泊","自然","文化"]', '["img13.jpg","img14.jpg","img15.jpg"]', '0571-87179617', 'http://www.hzwestlake.com');
+
+-- 插入假数据到评论表
+INSERT INTO reviews (attractionId, userId, userName, userAvatar, rating, content, images, date) VALUES
+('att001', 1, '旅行者一号', 'avatar1.jpg', 5, '非常震撼的古代建筑群，建议租用讲解器，能了解更多历史故事。', '["rev1.jpg","rev2.jpg"]', '2023-05-15'),
+('att001', 2, '冒险家', 'avatar2.jpg', 4, '人太多了，虽然很壮观但体验受影响，建议淡季来。', '["rev3.jpg"]', '2023-06-20'),
+('att002', 3, '美食家', 'avatar3.jpg', 5, '带孩子玩得非常开心，烟花秀太美了！园区餐饮选择也很多。', '["rev4.jpg","rev5.jpg","rev6.jpg"]', '2023-07-10'),
+('att002', 4, '摄影师', 'avatar4.jpg', 4, '拍照的好地方，但人实在太多，很难拍到没有人的照片。', '[]', '2023-08-05'),
+('att003', 5, '家庭旅行', 'avatar5.jpg', 5, '广州夜景尽收眼底，极速云霄很刺激，孩子玩得很开心！', '["rev7.jpg"]', '2023-09-12'),
+('att003', 1, '旅行者一号', 'avatar1.jpg', 3, '门票有点贵，天气不好时上去什么都看不到。', '[]', '2023-10-08'),
+('att004', 2, '冒险家', 'avatar2.jpg', 5, '大熊猫太可爱了！看到好几只熊猫在吃竹子，还有幼崽在玩耍。', '["rev8.jpg","rev9.jpg"]', '2023-11-15'),
+('att004', 3, '美食家', 'avatar3.jpg', 4, '很好的亲子游地点，但园区内餐饮选择有限。', '["rev10.jpg"]', '2023-12-20'),
+('att005', 4, '摄影师', 'avatar4.jpg', 5, '西湖四季皆美，这次秋天来，层林尽染，美不胜收。', '["rev11.jpg","rev12.jpg","rev13.jpg"]', '2024-01-05'),
+('att005', 5, '家庭旅行', 'avatar5.jpg', 5, '免费开放的5A景区，沿着湖边散步非常惬意，租了自行车环湖也很棒。', '["rev14.jpg"]', '2024-02-18');
+
+-- 插入假数据到收藏表
+INSERT INTO favorites (userId, attractionId) VALUES
+(1, 'att001'),
+(1, 'att005'),
+(2, 'att002'),
+(2, 'att004'),
+(3, 'att002'),
+(3, 'att003'),
+(4, 'att001'),
+(4, 'att005'),
+(5, 'att003'),
+(5, 'att004');
+
+-- 插入假数据到特色专题表
+INSERT INTO topics (title, description, image) VALUES
+('中国世界文化遗产之旅', '探索中国最著名的世界文化遗产地，感受五千年文明的魅力。', 'topic1.jpg'),
+('亲子游乐园精选', '最适合全家出游的主题乐园和动物园，让孩子快乐成长。', 'topic2.jpg'),
+('城市地标打卡', '不可错过的城市标志性建筑，留下你的旅行足迹。', 'topic3.jpg'),
+('美食之旅', '跟着味蕾去旅行，探索各地最具特色的美食体验。', 'topic4.jpg'),
+('自然风光摄影点', '摄影师推荐的绝美自然景观，捕捉最美的瞬间。', 'topic5.jpg');
