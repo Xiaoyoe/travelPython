@@ -9,30 +9,51 @@ class Attraction(db.Model):
     location = db.Column(db.String(255))
     description = db.Column(db.Text)
     history = db.Column(db.Text)
-    features = db.Column(db.Text)
-    tips = db.Column(db.Text)
+    features = db.Column(db.JSON)
+    tips = db.Column(db.JSON)
     openTime = db.Column(db.String(255))
     price = db.Column(db.Numeric(10, 2))
     discountPrice = db.Column(db.Numeric(10, 2))
     suggestedDuration = db.Column(db.String(255))
     rating = db.Column(db.Float)
     reviewCount = db.Column(db.Integer)
-    tags = db.Column(db.Text)
-    images = db.Column(db.Text)
+    tags = db.Column(db.JSON)
+    images = db.Column(db.JSON)
     phone = db.Column(db.String(255))
     website = db.Column(db.String(255))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
     
-    reviews = db.relationship('Review', backref='attraction', lazy=True)
-    favorites = db.relationship('Favorite', backref='attraction', lazy=True)
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if key in ['features', 'tips', 'tags', 'images'] and isinstance(value, list):
+                setattr(self, key, json.dumps(value, ensure_ascii=False))
+            else:
+                setattr(self, key, value)
     
     def get_features(self):
-        return json.loads(self.features) if self.features else []
+        return self._parse_json_field('features')
     
     def get_tips(self):
-        return json.loads(self.tips) if self.tips else []
+        return self._parse_json_field('tips')
     
     def get_tags(self):
-        return json.loads(self.tags) if self.tags else []
+        return self._parse_json_field('tags')
     
     def get_images(self):
-        return json.loads(self.images) if self.images else []
+        return self._parse_json_field('images')
+    
+    def _parse_json_field(self, field_name):
+        field_value = getattr(self, field_name)
+        if not field_value:
+            return []
+        if isinstance(field_value, list):
+            return field_value
+        if isinstance(field_value, str):
+            try:
+                return json.loads(field_value)
+            except json.JSONDecodeError:
+                return [field_value]
+        return field_value

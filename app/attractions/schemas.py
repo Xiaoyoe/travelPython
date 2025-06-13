@@ -20,36 +20,60 @@ class AttractionSchema(Schema):
     phone = fields.Str()
     website = fields.Str()
 
-    def get_json_field(self, obj, field_name):
+    @post_load
+    def make_attraction(self, data, **kwargs):
+        from .models import Attraction
+        return Attraction(**data)
+
+    def format_json_field(self, obj, field_name):
         field_value = getattr(obj, field_name)
+        if not field_value:
+            return []
+            
+        # 如果已经是列表格式，直接返回
+        if isinstance(field_value, list):
+            return field_value
+            
+        # 处理字符串类型的字段值
         if isinstance(field_value, str):
             try:
-                # 处理可能被拆分的JSON字符串
-                if field_value.startswith('[') and field_value.endswith(']'):
-                    # 如果是标准JSON数组格式，直接解析
-                    return json.loads(field_value)
-                else:
-                    # 处理被拆分的字符数组
-                    if field_name in ['features', 'tags', 'images', 'tips']:
-                        # 尝试重新组合被拆分的JSON数组
-                        try:
-                            # 先去除所有空格和换行
-                            cleaned = field_value.replace(' ', '').replace('\n', '')
-                            # 如果是被拆分的JSON数组（如用户示例）
-                            if '"' in cleaned or '[' in cleaned or ']' in cleaned:
-                                # 直接解析整个字符串
-                                return json.loads(cleaned)
-                            else:
-                                # 否则返回原始字符串
-                                return [field_value]
-                        except json.JSONDecodeError:
-                            # 如果解析失败，返回原始字符串
-                            return [field_value]
-                    else:
-                        return [field_value]
+                # 尝试直接解析JSON
+                parsed = json.loads(field_value)
+                if isinstance(parsed, list):
+                    return parsed
+                return [parsed]
             except json.JSONDecodeError:
-                return []
-        return field_value
+                # 处理特殊格式的字符串数组
+                if field_name in ['features', 'images', 'tags', 'tips']:
+                    # 处理被拆分的字符数组（如用户示例）
+                    if any(c in field_value for c in ['["', '","', '"]']):
+                        # 尝试提取所有引号内的内容
+                        import re
+                        # 先尝试直接组合所有字符
+                        if all(len(c) == 1 for c in field_value if c not in ['[', ']', '"', ',']):
+                            combined = ''.join(field_value)
+                            try:
+                                return json.loads(combined)
+                            except:
+                                pass
+                        # 如果直接组合失败，再尝试提取引号内的内容
+                        matches = re.findall(r'"([^"]*)"', field_value)
+                        if matches:
+                            return matches
+                        
+                    # 尝试清理并重新组合被拆分的JSON数组
+                    cleaned = field_value.replace(' ', '').replace('\n', '')
+                    if cleaned.startswith('["') and cleaned.endswith('"]'):
+                        try:
+                            return json.loads(cleaned)
+                        except:
+                            pass
+                
+                # 如果解析失败，返回包含原始值的数组
+                return [field_value]
+        
+        # 其他情况返回包含原始值的数组
+        return [field_value]
 
 attraction_schema = AttractionSchema()
 attractions_schema = AttractionSchema(many=True)

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.attractions.models import Attraction
+from app.regions.models import Region
 from app.attractions.schemas import attraction_schema, attractions_schema
 from app import db
 
@@ -9,6 +10,24 @@ attractions_bp = Blueprint('attractions', __name__)
 def get_attractions():
     attractions = Attraction.query.all()
     return jsonify(attractions_schema.dump(attractions))
+
+@attractions_bp.route('/attractions/filter', methods=['GET'])
+def filter_attractions():
+    category_id = request.args.get('category')
+    region_name = request.args.get('region')
+    
+    query = Attraction.query
+    
+    if category_id and category_id.lower() != 'all':
+        query = query.filter_by(category_id=category_id)
+        
+    if region_name and region_name.lower() != 'all':
+        region = Region.query.filter_by(name=region_name).first()
+        if region:
+            query = query.filter_by(region_id=region.id)
+    
+    attractions = query.all()
+    return jsonify(attractions_schema.dump(attractions)), 200
 
 @attractions_bp.route('/attractions/<string:id>', methods=['GET'])
 def get_attraction(id):

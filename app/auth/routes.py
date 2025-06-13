@@ -79,8 +79,12 @@ def login():
     if not user or user.password != password:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 400
 
-    # 返回登录成功消息
-    return jsonify({'success': True, 'message': '登录成功！'}), 200
+    # 返回登录成功消息和用户数据
+    return jsonify({
+        'success': True, 
+        'message': '登录成功！',
+        'data': user_schema.dump(user)
+    }), 200
 
 
 @auth_bp.route('/profile', methods=['GET'])

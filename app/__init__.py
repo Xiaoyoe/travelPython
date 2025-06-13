@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 from config import Config
 
 # 初始化数据库连接
@@ -16,6 +17,16 @@ def create_app(config_class=Config):
     # 初始化扩展
     db.init_app(app)
     ma.init_app(app)
+    
+    # 配置CORS - 统一配置所有路由
+    CORS(app, resources={
+        r"/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": "*",
+            "supports_credentials": True
+        }
+    })
 
     # 注册蓝图
     from app.auth import auth_bp

@@ -12,6 +12,8 @@ class User(db.Model):
     email = db.Column(db.String(255))
     frequentCity = db.Column(db.String(255))
     preferences = db.Column(db.Text)
+    avatar = db.Column(db.String(255))
+    lastLogin = db.Column(db.DateTime)
     
     reviews = db.relationship('Review', backref='user', lazy=True)
     favorites = db.relationship('Favorite', backref='user', lazy=True)
@@ -26,5 +28,7 @@ class User(db.Model):
             'nickname': self.nickname,
             'email': self.email,
             'frequentCity': self.frequentCity,
-            'preferences': self.get_preferences()
+            'preferences': self.get_preferences(),
+            'avatar': self.avatar,
+            'lastLogin': self.lastLogin.isoformat() if self.lastLogin else None
         }
