@@ -12,8 +12,8 @@ class Review(db.Model):
     userAvatar = db.Column(db.String(255))
     rating = db.Column(db.Integer)
     content = db.Column(db.Text)
-    images = db.Column(db.Text)
+    images = db.Column(db.JSON)
     date = db.Column(db.Date, default=datetime.utcnow)
     
     def get_images(self):
-        return json.loads(self.images) if self.images else []
+        return self.images if self.images else []
