@@ -34,6 +34,11 @@ def get_attraction(id):
     attraction = Attraction.query.get_or_404(id)
     return jsonify(attraction_schema.dump(attraction))
 
+@attractions_bp.route('/attractions/name/<string:name>', methods=['GET'])
+def get_attraction_by_name(name):
+    attraction = Attraction.query.filter_by(name=name).first_or_404()
+    return jsonify(attraction_schema.dump(attraction))
+
 @attractions_bp.route('/attractions', methods=['POST'])
 def create_attraction():
     data = request.get_json()

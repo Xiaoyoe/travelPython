@@ -33,14 +33,14 @@ def create_app(config_class=Config):
     from app.users import users_bp
     from app.attractions.routes import attractions_bp
     from app.reviews.routes import reviews_bp
-    from app.favorites.routes import favorites_bp
+    
     from app.topics.routes import topics_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(attractions_bp)
     app.register_blueprint(reviews_bp)
-    app.register_blueprint(favorites_bp)
+    
     app.register_blueprint(topics_bp)
 
     return app

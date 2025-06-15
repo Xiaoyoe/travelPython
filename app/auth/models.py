@@ -14,7 +14,7 @@ class User(db.Model):
     preferences = db.Column(db.Text)
     
     reviews = db.relationship('Review', backref='user', lazy=True)
-    favorites = db.relationship('Favorite', backref='user', lazy=True)
+
     
     def get_preferences(self):
         return json.loads(self.preferences) if self.preferences else []
